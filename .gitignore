@@ -103,8 +103,12 @@ web_modules/
 # dotenv environment variable files
 
 .env
+.env.default
+.env.dev
 .env.development.local
+.env.test
 .env.test.local
+.env.prod
 .env.production.local
 .env.local
 
