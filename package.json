@@ -3,6 +3,7 @@
     "module": "index.ts",
     "type": "module",
     "dependencies": {
+        "cron": "^3.1.7",
         "dotenv-extended": "^2.9.0",
         "dotenv-parse-variables": "^2.0.0",
         "hono": "^4.5.3",
