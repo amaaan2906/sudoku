@@ -58,9 +58,11 @@ export default function generator(level: number = -1, size: number = 9) {
         '000000000000000000000000000000000000000000000000000000000000000000000000000000000'
     log('Generating unique board for solution')
     let start_time = performance.now()
-    let solution: number[][] = solver(zero_string)
+    // pass zero string to create a random unique board
+    let solution: number[][] = solver(zero_string, false, true)
     let end_time = performance.now()
     log(`Unique board generated in ${end_time - start_time}ms`)
+
     let tries = level == 0 ? 1 : level == 1 ? 8 : 20
     let [game_board, removed_vals] = poke_holes(solution, tries)
     log(`${removed_vals.length} values removed from board`)

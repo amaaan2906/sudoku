@@ -11,14 +11,14 @@ public_api.get('/', (c) => {
 })
 
 public_api.get('/generate/:level?', (c) => {
+    // TODO: pass level select to generator
     let level: string | undefined = c.req.param('level')?.toLowerCase()
     let game = generator()
     return c.json(game)
 })
 
 public_api.get('solve/:board_string', (c) => {
-    let sol = solver(c.req.param('board_string'))
-    return c.text(sol.toString())
+    return c.text(solver(c.req.param('board_string'), true).toString())
 })
 
 export default public_api
