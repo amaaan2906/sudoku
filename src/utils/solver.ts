@@ -153,8 +153,12 @@ export default function solver(
         }
     }
     let res: any
-    let solution_count = solution_counter(grid, true)
-
+    log(grid)
+    let solution_count = solution_counter(
+        JSON.parse(JSON.stringify(grid)),
+        true
+    )
+    log(grid)
     if (!gen_mode && (solution_count === 2 || solution_count === 0)) {
         log(`Solver not run`)
         return res
@@ -218,6 +222,7 @@ export function solution_counter(
                 return undefined
             }
         }
+        return undefined
     }
 }
 

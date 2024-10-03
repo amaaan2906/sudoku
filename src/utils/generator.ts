@@ -56,15 +56,17 @@ export default function generator(level: number = -1, size: number = 9) {
     }
     const zero_string =
         '000000000000000000000000000000000000000000000000000000000000000000000000000000000'
-    log('Generating unique board for solution')
+    log('Generating unique board')
     let start_time = performance.now()
     // pass zero string to create a random unique board
     let solution: number[][] = solver(zero_string, false, true)
     let end_time = performance.now()
     log(`Unique board generated in ${end_time - start_time}ms`)
-
     let tries = level == 0 ? 1 : level == 1 ? 8 : 20
-    let [game_board, removed_vals] = poke_holes(solution, tries)
+    let [game_board, removed_vals] = poke_holes(
+        JSON.parse(JSON.stringify(solution)),
+        tries
+    )
     log(`${removed_vals.length} values removed from board`)
     return { game_board, solution, removed_vals }
 }
