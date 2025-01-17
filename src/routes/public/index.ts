@@ -13,7 +13,9 @@ public_api.get('/', (c) => {
 public_api.get('/generate/:level?', (c) => {
     // TODO: pass level select to generator
     let level: string | undefined = c.req.param('level')?.toLowerCase()
-    let game = generator()
+    let level_num =
+        level == 'easy' ? 0 : level == 'medium' ? 1 : level == 'hard' ? 2 : -1
+    let game = generator(level_num)
     return c.json(game)
 })
 
