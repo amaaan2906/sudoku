@@ -9,10 +9,6 @@ const app = new Hono({ strict: false })
 app.use(logger())
 
 import router from './routes'
-app.get('/health', (c) => {
-    return c.text('OK', 200)
-})
-
 app.route('/', router)
 
 export default {
