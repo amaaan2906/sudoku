@@ -20,7 +20,12 @@ public_api.get('/generate/:level?', (c) => {
 })
 
 public_api.get('solve/:board_string', (c) => {
-    return c.text(solver(c.req.param('board_string'), true).toString())
+    return c.text(
+        solver({
+            board_string: c.req.param('board_string') as string,
+            verbose: true,
+        }).toString()
+    )
 })
 
 CronJob.from({

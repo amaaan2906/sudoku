@@ -1,4 +1,4 @@
-import solver, { solution_counter } from './solver'
+import solver, { counter } from './solver'
 
 const log = function (msg: any) {
     console.log(`<${new Date().toUTCString()}> [Generator] ${msg}`)
@@ -24,7 +24,7 @@ function poke_holes(board: number[][], tries: number = 15): any[] {
         // backup value, incase the board doesn't have a unique solution
         let val_bkp = board[row][col]
         board[row][col] = 0
-        if (solution_counter(board) != 1) {
+        if (counter({ board_string: board.flat().join('') }) != 1) {
             // count number of solutions to board
             // if no/>1 solution, undo change
             board[row][col] = val_bkp
@@ -59,7 +59,10 @@ export default function generator(level: number = -1, size: number = 9) {
     log('Generating unique board')
     let start_time = performance.now()
     // pass zero string to create a random unique board
-    let solution: number[][] = solver(zero_string, false, true)
+    let solution: number[][] = solver({
+        board_string: zero_string,
+        gen_mode: true,
+    })
     let end_time = performance.now()
     log(`Unique board generated in ${end_time - start_time}ms`)
     let tries = level == 0 ? 1 : level == 1 ? 8 : 20

@@ -103,11 +103,12 @@ function box_valid(
 }
 
 /**
+ * !DEPRECATED
  * Main sudoku board solver function using backtracking.
  * @param grid 2d integer grid sudoku board
  * @returns solved 2d integer grid sudoku board
  */
-function backtrack_solver(grid: number[][]) {
+function _backtrack_solver(grid: number[][]) {
     if (check_grid_complete(grid)) return grid
     for (let i = 0; i < 81; i++) {
         // find empty slot
@@ -118,7 +119,7 @@ function backtrack_solver(grid: number[][]) {
             for (let num of num_list) {
                 if (valid_placement(num, row, col, grid)) {
                     grid[row][col] = num
-                    if (backtrack_solver(grid)) return grid
+                    if (_backtrack_solver(grid)) return grid
                     grid[row][col] = 0
                 }
             }
@@ -128,68 +129,13 @@ function backtrack_solver(grid: number[][]) {
 }
 
 /**
- * Driver code for sudoku solver
- * @param grid_string string representation of board
- * @param verbose toggle for logger
- * @param gen_mode toggle for generating new board
- * @param type toggle solver algorithm (currently only supports backtracking)
- * @returns
- */
-export default function solver(
-    grid_string: string,
-    verbose: boolean = false,
-    gen_mode: boolean = false,
-    type: string = 'backtrack'
-): number[][] {
-    global.v = verbose
-    grid_string = grid_string.replaceAll(',', '')
-    log('Initializing solver')
-    let size: number = Math.sqrt(grid_string.length)
-    let grid: number[][] = [...Array(size)].map(() => Array(size))
-    let index = 0
-    for (let r = 0; r < size; r++) {
-        for (let c = 0; c < size; c++) {
-            grid[r][c] = parseInt(grid_string.charAt(index++))
-        }
-    }
-    let res: any
-    log(grid)
-    let solution_count = solution_counter(
-        JSON.parse(JSON.stringify(grid)),
-        true
-    )
-    log(grid)
-    if (!gen_mode && (solution_count === 2 || solution_count === 0)) {
-        log(`Solver not run`)
-        return res
-    } else {
-        log('Solving grid using [Backtracking]')
-        let start_time = performance.now()
-        res = backtrack_solver(grid)
-        let end_time = performance.now()
-        if (res === undefined) log(`No valid solution for grid`)
-        else log(`Grid Solved in ${end_time - start_time}ms`)
-
-        return res
-    }
-
-    // TODO: if implementing more solving algorithms
-    function solver_toggle() {
-        if (type.toLowerCase() == 'backtrack') {
-        }
-    }
-}
-
-/**
+ * !DEPRECATED
  * This function counts the number of possible solutions for a given sudoku board
  * @param grid 2d integer grid sudoku board
  * @param unique_break boolean flag to stops exec if solution is not unique
  * @returns integer count of solutions
  */
-export function solution_counter(
-    board: number[][],
-    unique_break: boolean = false
-) {
+function _solution_counter(board: number[][], unique_break: boolean = false) {
     var counter: number = 0
     log(`Counting solutions for ${board}`)
     backtrack(board)
@@ -226,4 +172,189 @@ export function solution_counter(
     }
 }
 
+/**
+ * !DEPRECATED
+ * Driver code for sudoku solver
+ * @param grid_string string representation of board
+ * @param verbose toggle for logger
+ * @param gen_mode toggle for generating new board
+ * @param type toggle solver algorithm (currently only supports backtracking)
+ * @returns
+ */
+function _solver(
+    grid_string: string,
+    verbose: boolean = false,
+    gen_mode: boolean = false,
+    type: string = 'backtrack'
+): number[][] {
+    global.v = verbose
+    grid_string = grid_string.replaceAll(',', '')
+    log('Initializing solver')
+    let size: number = Math.sqrt(grid_string.length)
+    let grid: number[][] = [...Array(size)].map(() => Array(size))
+    let index = 0
+    for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+            grid[r][c] = parseInt(grid_string.charAt(index++))
+        }
+    }
+    let res: any
+    log(grid)
+    if (!gen_mode) {
+        let solution_count = _solution_counter(
+            JSON.parse(JSON.stringify(grid)),
+            true
+        )
+        if (solution_count === 2 || solution_count === 0) {
+            log(`Solver not run`)
+            return res
+        }
+    }
+    log('Solving grid using [Backtracking]')
+    let start_time = performance.now()
+    res = _backtrack_solver(grid)
+    let end_time = performance.now()
+    if (res === undefined) log(`No valid solution for grid`)
+    else log(`Grid Solved in ${end_time - start_time}ms`)
+
+    return res
+
+    // TODO: if implementing more solving algorithms
+    function solver_toggle() {
+        if (type.toLowerCase() == 'backtrack') {
+        }
+    }
+}
+
 // TODO: consolidate solver and counter into single call to reduce runtime
+type Options = {
+    board_string: string
+    counter?: boolean
+    verbose?: boolean
+    gen_mode?: boolean
+}
+
+/**
+ *
+ * @param options
+ * @returns
+ */
+export default function solver(options: Options): number[][] {
+    global.v = options.verbose || false
+    options.board_string = options.board_string.replaceAll(',', '')
+    return _controller(
+        _grid_maker(options.board_string),
+        options.counter || false,
+        options.gen_mode || false
+    )
+}
+
+/**
+ *
+ * @param options
+ * @returns
+ */
+export function counter(options: Options): number {
+    log(`Counting solutions for ${options.board_string}`)
+    return _controller(_grid_maker(options.board_string), true)
+}
+
+/**
+ *
+ * @param board
+ * @returns
+ */
+function _grid_maker(board: string): number[][] {
+    // create board matrix
+    let size: number = Math.sqrt(board.length)
+    let grid: number[][] = [...Array(size)].map(() => Array(size))
+    let index = 0
+    for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+            grid[r][c] = parseInt(board.charAt(index++))
+        }
+    }
+    log(grid)
+    return grid
+}
+
+/**
+ *
+ * @param grid
+ * @param count
+ * @param gen_mode
+ * @returns
+ */
+function _controller(
+    grid: number[][],
+    count: boolean,
+    gen_mode?: boolean
+): any {
+    log('Initializing solver')
+    let solution_count: number = 0
+    if (count) {
+        _backtracker(grid, true, false)
+        if (solution_count > 499) log(`Grid has 500+ solutions`)
+        else log(`Grid has ${solution_count} possible solutions`)
+        return solution_count
+    }
+    if (gen_mode) {
+        return _backtracker(grid, false, false)
+    } else {
+        _backtracker(grid, true, true)
+        if (solution_count === 2 || solution_count === 0) {
+            log(`Solver not run`)
+            log(
+                `Grid has ${solution_count === 2 ? 'multiple' : 'zero'} possible solutions`
+            )
+            return undefined
+        }
+        log('Solving grid using [Backtracking]')
+        let start_time = performance.now()
+        let res = _backtracker(grid, false, false)
+        let end_time = performance.now()
+        if (res === undefined) log(`No valid solution for grid`)
+        else log(`Grid Solved in ${end_time - start_time}ms`)
+
+        return res
+    }
+    /**
+     *
+     * @param grid
+     * @param counter
+     * @param unique
+     * @returns
+     */
+    function _backtracker(
+        grid: number[][],
+        counter: boolean = false,
+        unique: boolean = false
+    ) {
+        if (check_grid_complete(grid)) {
+            if (counter) {
+                solution_count++
+                return undefined
+            } else return grid
+        }
+        for (let i = 0; i < 81; i++) {
+            // find empty slot
+            let row: number = Math.floor(i / 9)
+            let col: number = i % 9
+            if (grid[row][col] == 0) {
+                // let num_list = shuffle_array()
+                // for (let num of num_list) {
+                for (let num = 1; num < 10; num++) {
+                    if (valid_placement(num, row, col, grid)) {
+                        grid[row][col] = num
+                        if (unique && solution_count > 1) break
+                        if (solution_count > 499) break
+                        if (_backtracker(grid, counter, unique)) return grid
+                        grid[row][col] = 0
+                    }
+                }
+                return undefined
+            }
+        }
+        return undefined
+    }
+}
